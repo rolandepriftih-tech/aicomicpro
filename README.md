@@ -1,3 +1,10 @@
+<img width="1574" height="1063" alt="截屏2026-09-01 16 06 19" src="https://github.com/user-attachments/assets/fc0c2698-92b2-4768-9770-7d1c7bc695b8" />![Uploading 截屏2026![Uploading 截屏2026-09-01 14.49.26.png…]()
+<img width="1574" height="1063" alt="截屏2026-09-01 14 49 33" src="https://github.com/user-attachments/assets/bbb6adfc-f1f3-406a-b0b7-9e459eec39a4" />
+<img width="1574" height="1063" alt="截屏2026-09-01 14 49 19" src="https://github.com/user-attachments/assets/b0d74167-f566-49f2-9425-f87ca03a83b8" />
+<img width="1574" height="1063" alt="截屏2026-09-01 14 49 21" src="https://github.com/user-attachments/assets/c6b2d6ac-8b8a-438f-9b20-4d985fb4d3cc" />
+<img width="1574" height="1063" alt="截屏2026-09-01 14 49 26" src="https://github.com/user-attachments/assets/3149fa00-8aba-4f32-8b65-72cb075dda7a" />
+<img width="1574" height="1063" alt="截屏2026-09-01 14 49 33" src="https://github.com/user-attachments/assets/33bd43a2-1686-4c0d-a7bf-7621ccde4e0f" />
+-09-01 16.06.19.png…]()
 # AI Comic Pro
 
 本地 AI 漫剧制片工作台 - 从剧本到分镜到视频的一站式创作工具。
