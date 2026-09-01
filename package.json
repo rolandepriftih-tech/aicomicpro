@@ -1,0 +1,46 @@
+{
+  "name": "ai-comic-pro",
+  "version": "0.1.0",
+  "private": true,
+  "browserslist": [
+    "chrome >= 111",
+    "firefox >= 115",
+    "safari >= 18"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@google/genai": "^1.44.0",
+    "@google/generative-ai": "^0.24.1",
+    "@xyflow/react": "^12.10.2",
+    "https-proxy-agent": "^7.0.6",
+    "lucide-react": "^0.575.0",
+    "next": "16.1.6",
+    "openai": "^6.25.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "undici": "^7.22.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "jsdom": "^29.1.1",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^4.1.11"
+  }
+}
