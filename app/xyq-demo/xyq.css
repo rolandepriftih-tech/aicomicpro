@@ -1,0 +1,181 @@
+/* 剪映小云雀风格演示页 — React Flow 样式覆盖 + 动画 */
+
+/* 隐藏滚动条但保留滚动能力（选中工具条横向滚动用） */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+
+.xyq-canvas .react-flow__edge-path {
+  stroke: rgba(0, 0, 0, 0.08);
+  stroke-width: 1.5;
+}
+.xyq-canvas .react-flow__edge.selected .react-flow__edge-path,
+.xyq-canvas .react-flow__edge:hover .react-flow__edge-path {
+  stroke: #aa80ff;
+}
+
+/* ---------- 卡片三态（CARD_SPEC_SUPPLEMENT.md §1 实测变量） ----------
+   机制同剪映：同一元素换 CSS 变量，无类名切换。
+   默认 bg rgba(255,255,255,.5) + 1px #fff 描边
+   hover bg → rgba(255,255,255,.8)
+   选中描边 → 极淡黑发丝线 rgba(0,0,0,.037)，❌无紫色选中环
+   立体感全部来自磨砂 blur(40px) + 半透明白，卡面无投影 */
+.xyq-canvas {
+  --xyq-canvas-node-card-border: 1px solid rgba(255, 255, 255, 0.9);
+  --xyq-canvas-node-card-selected-border: 1px solid rgba(0, 0, 0, 0.037);
+  --xyq-canvas-node-card-bg: rgba(255, 255, 255, 0.5);
+  --xyq-canvas-node-card-hover-background: rgba(255, 255, 255, 0.8);
+}
+
+.xyq-card {
+  border-radius: 36px;
+  border: var(--xyq-canvas-node-card-border);
+  background: var(--xyq-canvas-node-card-bg);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: none;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
+}
+.xyq-card:hover {
+  background: var(--xyq-canvas-node-card-hover-background);
+}
+.xyq-card.xyq-card--selected {
+  border: var(--xyq-canvas-node-card-selected-border);
+}
+/* 拖起时紫色淡影（--xyq-canvas-shadow-floating 实测） */
+.xyq-card.xyq-card--dragging {
+  filter: drop-shadow(0 12px 28px rgba(144, 89, 255, 0.16));
+}
+
+/* ---------- 连接 handle（§2 实测：34px 磨砂圆 + 67px 命中区） ---------- */
+.xyq-canvas .react-flow__handle {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid #fff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  /* 视觉 34px，命中区放大到 67×67（剪映实测） */
+  min-width: 34px;
+  min-height: 34px;
+}
+/* 命中区放大到 67×67 透明圆（剪映实测：易点击）；图标用 Handle children（Plus） */
+.xyq-canvas .react-flow__handle::before {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  border-radius: 999px;
+}
+.xyq-canvas .react-flow__handle.connectionindicator:hover {
+  opacity: 1;
+}
+.xyq-canvas .react-flow__node:hover .react-flow__handle,
+.xyq-canvas .react-flow__node.selected .react-flow__handle,
+.xyq-canvas.react-flow__container
+  .react-flow__node.connectionsource
+  .react-flow__handle {
+  opacity: 1;
+}
+/* 连线拖拽中全局显示所有 handle */
+.xyq-canvas .react-flow.connectiondragging .react-flow__handle,
+.xyq-canvas .react-flow.dragging .react-flow__handle {
+  opacity: 1;
+}
+
+/* ---------- 节点入场 ---------- */
+@keyframes xyq-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.xyq-node-enter {
+  animation: xyq-pop-in 0.25s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+/* ---------- 生成中 shimmer ---------- */
+@keyframes xyq-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+.xyq-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: xyq-shimmer 1.6s linear infinite;
+}
+
+/* ---------- Toast 进出 ---------- */
+@keyframes xyq-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.xyq-toast {
+  animation: xyq-toast-in 0.2s ease;
+}
+
+/* ---------- 弹层动画（右键菜单 / addNodePopover） ---------- */
+@keyframes xyq-popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.xyq-popover {
+  animation: xyq-popover-in 0.14s ease-out;
+}
+
+/* ---------- 选中节点时 React Flow 默认 outline 去掉（状态由卡片变量承担） ---------- */
+.xyq-canvas .react-flow__node.selected,
+.xyq-canvas .react-flow__node:focus,
+.xyq-canvas .react-flow__node:focus-visible {
+  outline: none;
+}
+
+/* 平移画布时 pane 追加 grabbing（剪映实测 dragging 类的等价物） */
+.xyq-canvas .react-flow__pane {
+  cursor: default;
+}
+.xyq-canvas .react-flow__pane.dragging {
+  cursor: grab;
+}

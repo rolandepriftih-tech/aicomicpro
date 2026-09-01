@@ -1,0 +1,400 @@
+/* ============================================================
+   小云雀卡片主题（规格来源：docs/CARD_SPEC_SUPPLEMENT.md，CDP 实测）
+   作用域：.xyq-canvas —— 只影响画布区域，不污染宿主暗色主题
+   ============================================================ */
+
+/* ---------- 卡面状态机：同一元素换变量，150ms 过渡 ---------- */
+.xyq-canvas {
+  /* 状态变量（实测值） */
+  --xyq-card-bg: rgba(255, 255, 255, 0.5);
+  --xyq-card-hover-bg: rgba(255, 255, 255, 0.8);
+  --xyq-card-border: rgba(255, 255, 255, 0.9);
+  --xyq-card-selected-border: rgba(0, 0, 0, 0.037);
+  --xyq-card-radius: 36px;
+  --xyq-ink: rgba(0, 0, 0, 0.9);
+  --xyq-ink-2: rgba(0, 0, 0, 0.45);
+  --xyq-ink-3: rgba(0, 0, 0, 0.2);
+  --xyq-hairline: rgba(0, 0, 0, 0.08);
+
+  /* 画布纸面 + 点阵 */
+  background-color: #f2f2f2;
+}
+
+.xyq-canvas .xyq-card {
+  position: relative;
+  background: var(--xyq-card-bg);
+  border: 1px solid var(--xyq-card-border);
+  border-radius: var(--xyq-card-radius);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: none;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
+  overflow: hidden;
+}
+.xyq-canvas .xyq-card:hover {
+  background: var(--xyq-card-hover-bg);
+}
+.xyq-canvas .xyq-card[data-selected="true"] {
+  border-color: var(--xyq-card-selected-border);
+  background: var(--xyq-card-hover-bg);
+}
+
+/* 生成中 shimmer（保留演示页实现） */
+@keyframes xyq-shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+.xyq-canvas .xyq-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: xyq-shimmer 1.6s linear infinite;
+  pointer-events: none;
+}
+
+/* ---------- 节点入场 ---------- */
+@keyframes xyq-pop-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.xyq-canvas .xyq-node-enter {
+  animation: xyq-pop-in 0.25s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+/* ---------- 类型标签（卡上方 12px 灰） ---------- */
+.xyq-canvas .xyq-type-tag {
+  position: absolute;
+  top: -24px;
+  left: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--xyq-ink-2);
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* ---------- attached-label（卡下方标题区） ---------- */
+.xyq-canvas .xyq-attached {
+  padding: 8px 6px 0;
+  user-select: none;
+}
+.xyq-canvas .xyq-attached-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.xyq-canvas .xyq-attached-title {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--xyq-ink);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.xyq-canvas .xyq-attached-tag {
+  flex: none;
+  font-size: 11px;
+  line-height: 16px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  color: #f60;
+  background: rgba(255, 102, 0, 0.08);
+}
+.xyq-canvas .xyq-attached-more {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: var(--xyq-ink-2);
+}
+.xyq-canvas .xyq-attached-more:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.xyq-canvas .xyq-attached-meta {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--xyq-ink-2);
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- 选中工具条（selectionToolbar 实测复刻） ---------- */
+.xyq-canvas .xyq-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow:
+    inset 0 0 0 1px #fff,
+    0 12px 24px rgba(0, 0, 0, 0.04);
+}
+.xyq-canvas .xyq-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--xyq-ink);
+  white-space: nowrap;
+  transition: background-color 120ms ease-out;
+}
+.xyq-canvas .xyq-toolbar-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+}
+.xyq-canvas .xyq-toolbar-btn:disabled {
+  color: var(--xyq-ink-3);
+  cursor: default;
+}
+.xyq-canvas .xyq-toolbar-btn-icon {
+  width: 32px;
+  padding: 0;
+}
+
+/* ---------- 空卡操作（上传/资产库：透明底黑字） ---------- */
+.xyq-canvas .xyq-empty-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 32px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--xyq-ink);
+  transition: background-color 120ms ease-out;
+}
+.xyq-canvas .xyq-empty-action:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* ---------- 连接 handle：34px 磨砂圆（实测） ---------- */
+.xyq-canvas .react-flow__handle.xyq-handle {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid #fff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--xyq-ink);
+  opacity: 0;
+  transition: opacity 150ms ease-out, transform 120ms ease-out;
+}
+.xyq-canvas .react-flow__node:hover .xyq-handle,
+.xyq-canvas .react-flow__node.selected .xyq-handle {
+  opacity: 1;
+}
+.xyq-canvas .react-flow__handle.xyq-handle:hover {
+  transform: scale(1.08);
+}
+
+/* ---------- 连线：中性灰，hover/选中 #aa80ff ---------- */
+.xyq-canvas .react-flow__edge .react-flow__edge-path {
+  stroke: rgba(0, 0, 0, 0.14);
+  stroke-width: 1.5;
+}
+.xyq-canvas .react-flow__edge.selected .react-flow__edge-path,
+.xyq-canvas .react-flow__edge:hover .react-flow__edge-path {
+  stroke: #aa80ff;
+}
+
+/* RF 默认选中/聚焦 outline 交给卡面状态机 */
+.xyq-canvas .react-flow__node.selected,
+.xyq-canvas .react-flow__node:focus,
+.xyq-canvas .react-flow__node:focus-visible {
+  outline: none;
+}
+
+/* ---------- 右键菜单 / 浮层通用 ---------- */
+.xyq-pop {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    inset 0 0 0 1px #fff,
+    0 12px 40px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+}
+.xyq-pop-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--xyq-ink);
+  text-align: left;
+  transition: background-color 120ms ease-out;
+}
+.xyq-pop-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.xyq-pop-item .xyq-pop-kbd {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--xyq-ink-3);
+}
+
+/* ---------- 提示词 composer（选中卡下方的输入面板） ---------- */
+.xyq-canvas .xyq-composer {
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    inset 0 0 0 1px #fff,
+    0 12px 40px rgba(0, 0, 0, 0.1);
+  padding: 12px 14px;
+}
+.xyq-canvas .xyq-composer textarea {
+  width: 100%;
+  resize: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--xyq-ink);
+}
+.xyq-canvas .xyq-composer textarea::placeholder {
+  color: var(--xyq-ink-3);
+}
+
+/* 参数胶囊 chip（风格/引擎/比例/时长/分辨率） */
+.xyq-canvas .xyq-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+  font-size: 12px;
+  color: var(--xyq-ink);
+  transition: background-color 120ms ease-out;
+  white-space: nowrap;
+}
+.xyq-canvas .xyq-chip:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+.xyq-canvas .xyq-chip-label {
+  color: var(--xyq-ink-2);
+}
+
+/* chip 下拉菜单 */
+.xyq-canvas .xyq-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 60;
+  min-width: 112px;
+  max-height: 260px;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    inset 0 0 0 1px #fff,
+    0 12px 40px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+}
+.xyq-canvas .xyq-menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--xyq-ink);
+  text-align: left;
+  transition: background-color 120ms ease-out;
+}
+.xyq-canvas .xyq-menu-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.xyq-canvas .xyq-menu-item[data-active="true"] {
+  background: rgba(170, 128, 255, 0.12);
+  color: #8149f2;
+}
+
+/* 黑色圆形生成按钮（36px，实测） */
+.xyq-canvas .xyq-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  transition: transform 120ms ease-out, opacity 120ms ease-out;
+}
+.xyq-canvas .xyq-generate-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+.xyq-canvas .xyq-generate-btn:disabled {
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: default;
+}
+
+/* ---------- 底部画布控制（Controls/MiniMap 浅色化） ---------- */
+.xyq-canvas .react-flow__controls {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  box-shadow:
+    inset 0 0 0 1px #fff,
+    0 12px 24px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+.xyq-canvas .react-flow__controls-button {
+  background: transparent;
+  border-bottom: 1px solid var(--xyq-hairline);
+  color: var(--xyq-ink);
+  width: 32px;
+  height: 32px;
+}
+.xyq-canvas .react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+.xyq-canvas .react-flow__controls-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.xyq-canvas .react-flow__controls-button svg {
+  fill: currentColor;
+}
+.xyq-canvas .react-flow__minimap {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  box-shadow:
+    inset 0 0 0 1px #fff,
+    0 12px 24px rgba(0, 0, 0, 0.04);
+}
